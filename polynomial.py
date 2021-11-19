@@ -6,7 +6,10 @@ class polynomial:
 		# self.deg_bound = pow(2,randint(2,11))
 		self.deg_bound = 4
 		self.cv = np.random.randint(1,self.max_coeff,self.deg_bound)
-	def dft(self, x):
+
+	def dft(self, x=None):
+		if x is None:
+			x = self.cv
 		x = np.asarray(x, dtype=float)
 		N = x.shape[0]
 		n = np.arange(N)
@@ -14,7 +17,9 @@ class polynomial:
 		M = np.exp(-2j * np.pi * k * n / N)
 		return np.dot(M, x)
 		
-	def fft(self, x):
+	def fft(self, x=None):
+		if x is None:
+			x = self.cv
 		x = np.asarray(x, dtype=float)
 		N = x.shape[0]
 		if N % 2 > 0:
