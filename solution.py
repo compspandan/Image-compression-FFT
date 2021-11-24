@@ -20,14 +20,14 @@ def test_pv_mul(poly1,poly2):
 	return polynomial(fft1*fft2)
 
 def compute_inv_fft():
-	poly1 = polynomial([1,1,1,0,0,0,0,0])
+	poly1 = polynomial([1,2,3,0,0,0,0,0])
 	poly2 = polynomial([1,1,1,0,0,0,0,0])
 	print('poly1',poly1.cv,'poly2',poly2.cv)
 	pv = test_pv_mul(poly1,poly2)
 	print('pv',pv.cv)
-	# print('ifft',pv.inv_fft())
-	# print('dft',pv.inv_dft())
-	print('np fft',np.fft.ifft(pv.cv))
+	print('ifft',np.real(np.rint(pv.inv_fft())))
+	# print('dft',np.real(np.rint(pv.inv_dft())))
+	print('np fft',np.real(np.rint(np.fft.ifft(pv.cv))))
 	# print(np.allclose(pv.inv_fft(),np.fft.ifft(pv.cv)))
 	convolution_check(poly1,poly2)
 

@@ -48,7 +48,10 @@ class polynomial:
 		k = n.reshape((N, 1))
 		inter = -1*k*n
 		M = np.exp(-2j * np.pi/N * inter)
-		return 1/N * np.dot(M, x)
+		if np.array_equal(x,self.cv):
+			return 1/N * np.dot(M, x)
+		else:
+			return np.dot(M,x)
 
 	def inv_fft(self, x=None):
 		if x is None:
@@ -62,8 +65,11 @@ class polynomial:
 		else:
 			X_even = self.inv_fft(x[::2])
 			X_odd = self.inv_fft(x[1::2])
-			terms = np.exp(-2j * np.pi/N * np.arange(N))
-		return np.concatenate([X_even + terms[:int(N/2)]*X_odd, X_even + terms[int(N/2):]*X_odd])
+			terms = np.exp(2j * np.pi/N * np.arange(N))
+		if np.array_equal(x, self.cv):
+			return 1/N * np.concatenate([X_even + terms[:int(N/2)]*X_odd, X_even + terms[int(N/2):]*X_odd])
+		else:
+			return np.concatenate([X_even + terms[:int(N/2)]*X_odd, X_even + terms[int(N/2):]*X_odd])
 	
 	def naive_convolution(self, B):
 		A = self
