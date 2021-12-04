@@ -1,6 +1,7 @@
 import numpy as np
 
 from polynomial import polynomial
+from utils import next_pow_of_two
 class matrix:
 	max_val = 256
 	def __init__(self,m=None):
@@ -33,3 +34,9 @@ class matrix:
 			ifft = poly.inv_fft()
 			ifft_matrix[:,i] = ifft
 		return ifft_matrix
+
+	def pad_with_zeros(self):
+		(x,y) = self.matrix.shape
+		newx = next_pow_of_two(x)
+		newy = next_pow_of_two(y)
+		self.matrix = np.pad(self.matrix,((0,newx-x),(0,newy-y)))

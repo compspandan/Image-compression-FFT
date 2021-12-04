@@ -1,7 +1,11 @@
+from numpy import fft
 from matrix import matrix
 from polynomial import polynomial
 import numpy as np
+import cv2 as cv
+import matplotlib.pyplot as plt
 
+from utils import next_pow_of_two
 
 # 1 and 2
 def test_dft_fft():
@@ -17,13 +21,6 @@ def test_pv_mul(poly1,poly2):
 	fft1 = poly1.fft()
 	fft2 = poly2.fft()
 	return polynomial(fft1*fft2)
-
-def next_pow_of_two(n):
-	# incase n itself is power of 2
-	n = n - 1
-	while n & n - 1:
-		n = n & n - 1 
-	return n << 1
 
 # 5
 def compute_inv_fft():
@@ -58,4 +55,27 @@ def test_fft_2D():
 	# checking if original matrix matches the matrix obtained after inverse fft
 	print(np.allclose(m.matrix,np.real(np.rint(ifft_matrix))))
 
-test_fft_2D()
+def get_grey_scale_matrix():
+	img = cv.imread('bw_rose.jpg')
+	img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+	return matrix(img)
+
+def grey_scale_image_compression():
+	m = get_grey_scale_matrix()
+	(nx,ny) = m.matrix.shape
+	m.pad_with_zeros()
+	fft_matrix = m.fft_2D()
+	# fft_matrix = np.fft.fft2(m.matrix)
+	sorted_vals = np.sort(np.abs(np.reshape(fft_matrix,-1)))
+	for trim in [0.1,0.05,0.025]:
+		threshold = sorted_vals[int((1-trim)*len(sorted_vals))]
+		compressed_matrix = np.abs(fft_matrix)>threshold
+		compressed_matrix = fft_matrix * compressed_matrix
+		compressed_matrix = matrix(compressed_matrix)
+		compressed_img = np.real(np.rint(compressed_matrix.ifft_2D()))
+		# compressed_img = np.fft.ifft2(compressed_matrix).real
+		(m,n) = fft_matrix.shape
+		compressed_img = compressed_img[:nx,:ny]
+		cv.imwrite('comp_img'+str(trim*100)+'.jpg',compressed_img)
+
+grey_scale_image_compression()
