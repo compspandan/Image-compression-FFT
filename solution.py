@@ -71,6 +71,7 @@ def grey_scale_image_compression():
 		threshold = sorted_vals[int((1-trim)*len(sorted_vals))]
 		compressed_matrix = np.abs(fft_matrix)>threshold
 		compressed_matrix = fft_matrix * compressed_matrix
+		cv.imwrite('fft_image'+str(trim*100)+'.jpg',np.real(compressed_matrix))
 		compressed_matrix = matrix(compressed_matrix)
 		compressed_img = np.real(np.rint(compressed_matrix.ifft_2D()))
 		# compressed_img = np.fft.ifft2(compressed_matrix).real
