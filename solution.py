@@ -1,38 +1,61 @@
+from matrix import matrix
 from polynomial import polynomial
 import numpy as np
 
 
-def test_dft_fft_1n2():
+# 1 and 2
+def test_dft_fft():
     v1 = polynomial()
-    print(v1.cv)
+    print("coeff vec:",v1.cv)
     d = v1.dft()
     print(np.allclose(d, np.fft.fft(v1.cv)))
     d = v1.fft()
     print(np.allclose(d, np.fft.fft(v1.cv)))
 
-
-def pv_mul(fft1,fft2,poly1,poly2):
-	l1 = len(fft1)
-	l2 = len(fft2)
-	l3 = l1 + l2
-	for _ in range(l3-l1):
-		fft1 = np.append(fft1,poly1.cv[0])
-	for _ in range(l3-l2):
-		fft2 = np.append(fft2,poly2.cv[0])
-	return fft1*fft2
-
-
-def test_pv_mul_3():
-	poly1 = polynomial()
-	poly2 = polynomial()
+# 3
+def test_pv_mul(poly1,poly2):
 	fft1 = poly1.fft()
 	fft2 = poly2.fft()
-	pv = pv_mul(fft1,fft2,poly1,poly2)
-	print(pv)
+	return polynomial(fft1*fft2)
 
+def next_pow_of_two(n):
+	# incase n itself is power of 2
+	n = n - 1
+	while n & n - 1:
+		n = n & n - 1 
+	return n << 1
 
-def convolution_check():
-    p4 = polynomial()
-    p3 = polynomial(deg_bound=3)
-    p7 = p4.naive_convolution(p3)
-    print(p3.cv, p4.cv, p7.cv, end='\n\n')
+# 5
+def compute_inv_fft():
+	poly1 = polynomial()
+	poly2 = polynomial()
+	deg_bound = next_pow_of_two(poly1.deg_bound + poly2.deg_bound - 1)
+	# padding cv of poly1 and poly2 to next highest power of 2 for IFFT
+	poly1.cv = np.pad(poly1.cv,(0,deg_bound-poly1.deg_bound))
+	poly2.cv = np.pad(poly2.cv,(0,deg_bound-poly2.deg_bound))
+
+	# print('poly1',poly1.cv)
+	# print('poly2',poly2.cv)
+	pv = test_pv_mul(poly1,poly2)
+	ifft = np.trim_zeros(np.real(np.rint(pv.inv_fft())))
+	print(np.allclose(ifft, convolution_check(poly1,poly2)))
+
+# 6
+def convolution_check(poly1,poly2):
+    res_poly = poly1.naive_convolution(poly2)
+    return res_poly.cv
+
+# 7 & 8
+def test_fft_2D():
+	m = matrix()
+	# computing fft
+	fft_matrix = m.fft_2D()
+	print(np.allclose(fft_matrix, np.fft.fft2(m.matrix)))
+	# computing inverse fft
+	fft_matrix = matrix(fft_matrix)
+	ifft_matrix = fft_matrix.ifft_2D()
+	print(np.allclose(ifft_matrix, np.fft.ifft2(fft_matrix.matrix)))
+	# checking if original matrix matches the matrix obtained after inverse fft
+	print(np.allclose(m.matrix,np.real(np.rint(ifft_matrix))))
+
+test_fft_2D()
