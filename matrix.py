@@ -2,11 +2,11 @@ import numpy as np
 
 from polynomial import polynomial
 class matrix:
-	max_val = 100
+	max_val = 256
 	def __init__(self,m=None):
 		if m is None:
-			self.n = 4
-			self.matrix = np.random.randint(1, self.max_val, (self.n,self.n))
+			self.n = 8
+			self.matrix = np.random.randint(0, self.max_val, (self.n,self.n))
 		else:
 			self.matrix = m
 	

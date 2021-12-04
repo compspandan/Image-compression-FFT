@@ -45,7 +45,7 @@ def convolution_check(poly1,poly2):
     res_poly = poly1.naive_convolution(poly2)
     return res_poly.cv
 
-# 7
+# 7 & 8
 def test_fft_2D():
 	m = matrix()
 	# computing fft
@@ -57,4 +57,5 @@ def test_fft_2D():
 	print(np.allclose(ifft_matrix, np.fft.ifft2(fft_matrix.matrix)))
 	# checking if original matrix matches the matrix obtained after inverse fft
 	print(np.allclose(m.matrix,np.real(np.rint(ifft_matrix))))
+
 test_fft_2D()
