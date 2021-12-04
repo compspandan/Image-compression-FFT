@@ -12,12 +12,12 @@ class polynomial:
 			self.cv = np.random.randint(1, self.max_coeff, self.deg_bound)
 		else:
 			self.deg_bound = len(cv)
-			self.cv = cv
+			self.cv = np.array(cv,dtype=complex)
 
 	def dft(self, x=None):
 		if x is None:
 			x = self.cv
-		x = np.asarray(x, dtype=float)
+		x = np.asarray(x, dtype=complex)
 		N = x.shape[0]
 		n = np.arange(N)
 		k = n.reshape((N, 1))
@@ -27,7 +27,7 @@ class polynomial:
 	def fft(self, x=None):
 		if x is None:
 			x = self.cv
-		x = np.asarray(x, dtype=float)
+		x = np.asarray(x, dtype=complex)
 		N = x.shape[0]
 		if N % 2 > 0:
 			raise ValueError("must be a power of 2")

@@ -1,3 +1,4 @@
+from matrix import matrix
 from polynomial import polynomial
 import numpy as np
 
@@ -44,4 +45,10 @@ def convolution_check(poly1,poly2):
     res_poly = poly1.naive_convolution(poly2)
     return res_poly.cv
 
-compute_inv_fft()
+# 7
+def test_fft_2D():
+	m = matrix()
+	fft_matrix = m.fft_2D()
+	print(np.allclose(fft_matrix, np.fft.fft2(m.matrix)))
+
+test_fft_2D()
