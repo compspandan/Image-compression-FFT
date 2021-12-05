@@ -9,9 +9,10 @@ def next_pow_of_two(n):
 
 def time_exec(func):
 	start = timer()
-	func()
+	res = func()
 	end = timer()
 	print('time taken: ['+str(end - start)+'s]\n')
+	return res
 
 def compare_with_numpy(x,y):
 	if np.allclose(x,y):

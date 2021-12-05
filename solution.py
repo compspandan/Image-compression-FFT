@@ -22,9 +22,10 @@ def test_fft():
     print("TASK2: Test FFT:" + compare_with_numpy(d, np.fft.fft(v1.cv)))
 
 # 3
-def test_pv_mul(poly1, poly2):
-    fft1 = poly1.fft()
-    fft2 = poly2.fft()
+def test_pv_mul(A, B):
+    fft1 = A.fft()
+    fft2 = B.fft()
+    print("TASK3: Multiply PV form A(x) and B(x)" + fft1*fft2 )
     return polynomial(fft1*fft2)
 
 # 5
@@ -35,9 +36,6 @@ def compute_inv_fft():
     # padding cv of poly1 and poly2 to next highest power of 2 for IFFT
     poly1.cv = np.pad(poly1.cv, (0, deg_bound-poly1.deg_bound))
     poly2.cv = np.pad(poly2.cv, (0, deg_bound-poly2.deg_bound))
-
-    # print('poly1',poly1.cv)
-    # print('poly2',poly2.cv)
     pv = test_pv_mul(poly1, poly2)
     ifft = np.trim_zeros(np.real(np.rint(pv.inv_fft())))
     print(np.allclose(ifft, convolution_check(poly1, poly2)))
