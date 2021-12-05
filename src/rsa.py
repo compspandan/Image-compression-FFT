@@ -40,24 +40,23 @@ def get_low_prime(number_of_bits):
             return prime_candidate
 
 
-def miller_rabin(mrc, iterations=20):
-    maxDivisionsByTwo = 0
-    ec = mrc-1
-    while ec % 2 == 0:
-        ec >>= 1
-        maxDivisionsByTwo += 1
-    assert(2**maxDivisionsByTwo * ec == mrc-1)
+def miller_rabin(prime_cand, itr=20):
+    max_div_by_two = 0
+    count = prime_cand-1
+    while count % 2 == 0:
+        count //= 2
+        max_div_by_two += 1
 
-    def trialComposite(round_tester):
-        if pow(round_tester, ec, mrc) == 1:
+    def composite_test(test_round):
+        if pow(test_round, count, prime_cand) == 1:
             return False
-        for i in range(maxDivisionsByTwo):
-            if pow(round_tester, 2**i * ec, mrc) == mrc-1:
+        for i in range(max_div_by_two):
+            if pow(test_round, pow(2,i) * count, prime_cand) == prime_cand-1:
                 return False
         return True
-    for i in range(iterations):
-        round_tester = random.randrange(2, mrc)
-        if trialComposite(round_tester):
+    for _ in range(itr):
+        round_tester = random.randrange(2, count)
+        if composite_test(round_tester):
             return False
     return True
 
