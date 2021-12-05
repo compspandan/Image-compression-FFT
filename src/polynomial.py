@@ -9,7 +9,7 @@ class polynomial:
 	def __init__(self, cv=None):
 		if cv is None:
 			# self.deg_bound = pow(2,randint(2,11))
-			self.deg_bound = 32
+			self.deg_bound = 8
 			self.cv = np.random.randint(1, self.max_coeff, self.deg_bound)
 		else:
 			self.deg_bound = len(cv)

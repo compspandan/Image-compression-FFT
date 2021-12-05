@@ -37,7 +37,7 @@ def test_rsa_on_C(c_pv):
     c_pv_str = "_".join(list(map(str, c_pv)))
     c_pv_num_blocks = []
     c_pv_num_curr = 0
-    CHAR_SIZE, BLOCK_SIZE = 1000, 2
+    CHAR_SIZE, BLOCK_SIZE = 1000, 100
     for i, c in enumerate(c_pv_str):
         if i % BLOCK_SIZE == 0 and i != 0:
             c_pv_num_blocks.append(c_pv_num_curr)
@@ -76,7 +76,9 @@ def compute_inv_fft(poly1, poly2):
     # padding cv of poly1 and poly2 to next highest power of 2 for IFFT
     poly1.cv = np.pad(poly1.cv, (0, deg_bound-poly1.deg_bound))
     poly2.cv = np.pad(poly2.cv, (0, deg_bound-poly2.deg_bound))
-    pv = polynomial(pv_mul(poly1, poly2))
+    poly1_fft = np.fft.fft(poly1.cv)
+    poly2_fft = np.fft.fft(poly2.cv)
+    pv = polynomial(poly1_fft * poly2_fft)
     ifft = np.trim_zeros(np.real(np.rint(pv.inv_fft())))
     return ifft, pv
 
@@ -179,9 +181,9 @@ def runner():
     print("Check if matrices match after FFT and IFFT:", compare_with_numpy(m.matrix, np.real(np.rint(ifft_matrix))))
     print()
 
-    print("TASK 9 AND 10:")
-    time_exec("Compress Grayscale Images via FFT:", grey_scale_image_compression)
-    print()
+    # print("TASK 9 AND 10:")
+    # time_exec("Compress Grayscale Images via FFT:", grey_scale_image_compression)
+    # print()
 
 
 if __name__ == '__main__':

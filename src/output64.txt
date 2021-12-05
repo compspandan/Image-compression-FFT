@@ -1,0 +1,44 @@
+TASK 1:
+coeff vector for DFT: [ 2 75 83 17 13 19 33 94]
+Exec Time DFT : [0.000236s]
+Exec Time Numpy FFT : [0.000024s]
+Test DFT:PASSED
+
+TASK 2:
+coeff vector for FFT: [ 2 75 83 17 13 19 33 94]
+Time FFT : [0.000542s]
+Test FFT:PASSED
+Exec Time Numpy FFT : [0.000014s]
+
+TASK 3:
+Multiply PV form A(x) and B(x) [188832.           +0.j          -8656.31702603+5533.52676326j
+    824.         -658.j          -6523.68297397+1257.52676326j
+  -6808.           +0.j          -6523.68297397-1257.52676326j
+    824.         +658.j          -8656.31702603-5533.52676326j]
+Exec Time PV multiplication : [0.001273s]
+
+TASK 4:
+Apply RSA Encrytion on C(x): PASSED
+RSA Encrpytion Decrytion on C(X) successful
+C(x): [188832.           +0.j          -8656.31702603+5533.52676326j
+    824.         -658.j          -6523.68297397+1257.52676326j
+  -6808.           +0.j          -6523.68297397-1257.52676326j
+    824.         +658.j          -8656.31702603-5533.52676326j]
+C(x) after RSA encryption and decryption: [(188832+0j), (-8656.317026029315+5533.526763257797j), (824.0000000000002-658j), (-6523.682973970687+1257.5267632577961j), (-6808+0j), (-6523.6829739706845-1257.5267632578027j), (823.9999999999998+658j), (-8656.31702602931-5533.526763257808j)]
+Exec Time RSA : [0.231499s]
+
+TASK 5 and 6:
+Exec Time Inverse FFT : [0.000814s]
+Exec Time Numpy IFFT: : [0.000018s]
+Exec time elementary polynomial multiplication : [0.000132s]
+Implement 1D Inverse FFT: PASSED
+Implement 1D Inverse FFT: PASSED
+
+TASK 7 AND 8:
+Exec Time 2D FFT & Inverse FFT : [0.010922s]
+Exec Time Numpy 2D FFT : [0.000112s]
+Check 2D FFT: PASSED
+Exec Time Numpy 2D IFFT : [0.000116s]
+Check 2D Inverse FFT: PASSED
+Check if matrices match after FFT and IFFT: PASSED
+
