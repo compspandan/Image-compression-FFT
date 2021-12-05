@@ -1,4 +1,5 @@
 from random import randint
+import cv2
 import numpy as np
 
 
@@ -14,62 +15,63 @@ class polynomial:
 			self.deg_bound = len(cv)
 			self.cv = np.array(cv,dtype=complex)
 
-	def dft(self, x=None):
-		if x is None:
-			x = self.cv
-		x = np.asarray(x, dtype=complex)
-		N = x.shape[0]
-		n = np.arange(N)
-		k = n.reshape((N, 1))
-		M = np.exp(-2j * np.pi/N * k * n)
-		return np.dot(M, x)
+	def dft(self, cv=None):
+		if cv is None:
+			cv = self.cv
+		cv, n = np.array(cv, dtype=complex), len(cv)
+		arr = np.array([number for number in range(n)])
+		values = np.matmul(arr.reshape((n, 1)), arr.reshape(1, n))
+		base = -2j * (np.pi / n) * values
+		vander = np.exp(base)
+		pv = vander @ cv
+		return pv 
 
-	def fft(self, x=None):
-		if x is None:
-			x = self.cv
-		x = np.asarray(x, dtype=complex)
-		N = x.shape[0]
-		if N % 2 > 0:
-			raise ValueError("must be a power of 2")
-		elif N <= 2:
-			return self.dft(x)
-		else:
-			X_even = self.fft(x[::2])
-			X_odd = self.fft(x[1::2])
-			terms = np.exp(-2j * np.pi/N * np.arange(N))
-		return np.concatenate([X_even + terms[:int(N/2)] * X_odd, X_even + terms[int(N/2):] * X_odd])
+	def fft(self, cv=None):
+		if cv is None:
+			cv = self.cv
+		cv, n = np.asarray(cv, dtype=complex), len(cv)
+		if n & 1:
+			raise ValueError("cv is not a power of 2")
+		elif n <= 2:
+			return self.dft(cv)
+		w_n, w = np.exp(-2j * np.pi / n), 1
+		y_0, y_1 = self.fft(cv[::2]), self.fft(cv[1::2])
+		y = np.zeros(n, dtype=complex)
+		for k in range(n // 2):
+			y[k] = y_0[k] + w * y_1[k]
+			y[k + n//2] = y_0[k] - w * y_1[k]
+			w = w * w_n
+		return y
+
 	
-	def inv_dft(self, x=None):
-		if x is None:
-			x = self.cv
-		x = np.asarray(x, dtype=complex)
-		N = x.shape[0]
-		n = np.arange(N)
-		k = n.reshape((N, 1))
-		inter = -1*k*n
-		M = np.exp(-2j * np.pi/N * inter)
-		if np.array_equal(x,self.cv):
-			return 1/N * np.dot(M, x)
-		else:
-			return np.dot(M,x)
+	def inv_dft(self, cv=None):
+		if cv is None:
+			cv = self.cv
+		cv, n = np.asarray(cv, dtype=complex), len(cv)
+		arr = np.array([number for number in range(n)])
+		values = -1 * np.matmul(arr.reshape((n, 1)), arr.reshape(1, n))
+		base = -2j * (np.pi / n) * values
+		vander = np.exp(base)
+		if np.array_equal(cv, self.cv):
+			return 1 / n * np.dot(vander, cv)
+		return vander @ cv
 
-	def inv_fft(self, x=None):
-		if x is None:
-			x = self.cv
-		x = np.asarray(x, dtype=complex)
-		N = x.shape[0]
-		if N % 2 > 0:
-			raise ValueError("must be a power of 2")
-		elif N <= 2:
-			return self.inv_dft(x)
-		else:
-			X_even = self.inv_fft(x[::2])
-			X_odd = self.inv_fft(x[1::2])
-			terms = np.exp(2j * np.pi/N * np.arange(N))
-		if np.array_equal(x, self.cv):
-			return 1/N * np.concatenate([X_even + terms[:int(N/2)]*X_odd, X_even + terms[int(N/2):]*X_odd])
-		else:
-			return np.concatenate([X_even + terms[:int(N/2)]*X_odd, X_even + terms[int(N/2):]*X_odd])
+	def inv_fft(self, cv=None):
+		if cv is None:
+			cv = self.cv
+		cv, n = np.asarray(cv, dtype=complex), len(cv)
+		if n & 1:
+			raise ValueError("cv is not a power of 2")
+		elif n <= 2:
+			return self.inv_dft(cv)
+		w_n, w = np.exp(2j * np.pi / n), 1
+		y_0, y_1 = self.inv_fft(cv[::2]), self.inv_fft(cv[1::2])
+		y = np.zeros(n, dtype=complex)
+		for k in range(n // 2):
+			y[k] = y_0[k] + w * y_1[k]
+			y[k + n//2] = y_0[k] - w * y_1[k]
+			w = w * w_n
+		return y / n if np.array_equal(cv, self.cv) else y
 	
 	def naive_convolution(self, B):
 		A = self
