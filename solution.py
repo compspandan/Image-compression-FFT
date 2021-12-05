@@ -1,3 +1,4 @@
+import pickle
 from numpy import fft
 from matrix import matrix
 from polynomial import polynomial
@@ -5,6 +6,9 @@ import numpy as np
 import rsa
 import cv2 as cv
 import matplotlib.pyplot as plt
+from scipy import sparse
+import pickle
+
 
 from utils import compare_with_numpy, get_grey_scale_image, next_pow_of_two, time_exec
 
@@ -106,7 +110,7 @@ def test_fft_2D():
 def grey_scale_image_compression():
     m = matrix(get_grey_scale_image())
     (nx, ny) = m.matrix.shape
-    m.pad_with_zeros()
+    # m.pad_with_zeros()
     fft_matrix = m.fft_2D()
     # fft_matrix = np.fft.fft2(m.matrix)
     sorted_vals = np.sort(np.abs(np.reshape(fft_matrix, -1)))
@@ -114,13 +118,26 @@ def grey_scale_image_compression():
         threshold = sorted_vals[int((1-trim)*len(sorted_vals))]
         compressed_matrix = np.abs(fft_matrix) > threshold
         compressed_matrix = fft_matrix * compressed_matrix
-        cv.imwrite('fft_image'+str(trim*100)+'.jpg',
-                   np.real(compressed_matrix))
+
+        # with gzip.GzipFile('fft_{}.npy.gz'.format(trim * 100), "w") as f:
+        #     np.save(file=f, arr=compressed_matrix)
+
+        # with gzip.GzipFile('fft_{}.npy.gz'.format(trim * 100), "r") as f:
+        #     compressed_matrix = np.load(f)
+
+        sparse_compressed_matrix = sparse.csr_matrix(compressed_matrix) 
+        with open('fft_{}.npz'.format(trim * 100), 'wb') as f:
+            sparse.save_npz(f, sparse_compressed_matrix, compressed=True)
+		
+        with open('fft_{}.npz'.format(trim * 100), 'rb') as f:
+            sparse_compressed_matrix = sparse.load_npz(f)
+            compressed_matrix = sparse_compressed_matrix.toarray()
+
         compressed_matrix = matrix(compressed_matrix)
         compressed_img = np.real(np.rint(compressed_matrix.ifft_2D()))
         # compressed_img = np.fft.ifft2(compressed_matrix).real
         (m, n) = fft_matrix.shape
-        compressed_img = compressed_img[:nx, :ny]
+        # compressed_img = compressed_img[:nx, :ny]
         cv.imwrite('comp_img'+str(trim*100)+'.jpg', compressed_img)
     print("TASK 9 and 10: PASSED")
 

@@ -24,6 +24,6 @@ def compare_with_numpy(x,y):
 		return 'FAILED'
 
 def get_grey_scale_image():
-    img = cv.imread('bw_rose.jpg')
+    img = cv.imread('girl.png')
     img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
     return img
