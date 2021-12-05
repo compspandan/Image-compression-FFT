@@ -131,9 +131,13 @@ def decrypt(cipher, secret_key):
     d, n = secret_key
     return pow_mod(cipher, d, n)
 
+def run_example():
+    public_key, secret_key = create(512)
+    message = 4120812949124
+    cipher = encrypt(message, public_key)
+    decrypted_message = decrypt(cipher, secret_key)
+    assert(message == decrypted_message)
 
-public_key, secret_key = create(512)
-message = 4120812949124
-cipher = encrypt(message, public_key)
-decrypted_message = decrypt(cipher, secret_key)
-assert(message == decrypted_message)
+
+if __name__ == "__main__":
+    run_example()
