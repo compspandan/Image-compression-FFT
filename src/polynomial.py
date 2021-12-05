@@ -9,7 +9,7 @@ class polynomial:
 	def __init__(self, cv=None):
 		if cv is None:
 			# self.deg_bound = pow(2,randint(2,11))
-			self.deg_bound = 4
+			self.deg_bound = 32
 			self.cv = np.random.randint(1, self.max_coeff, self.deg_bound)
 		else:
 			self.deg_bound = len(cv)
@@ -19,7 +19,7 @@ class polynomial:
 		if cv is None:
 			cv = self.cv
 		cv, n = np.array(cv, dtype=complex), len(cv)
-		arr = np.array([number for number in range(n)])
+		arr = np.arange(n)
 		values = np.matmul(arr.reshape((n, 1)), arr.reshape(1, n))
 		base = -2j * (np.pi / n) * values
 		vander = np.exp(base)
@@ -30,11 +30,11 @@ class polynomial:
 		if cv is None:
 			cv = self.cv
 		cv, n = np.asarray(cv, dtype=complex), len(cv)
-		if n & 1:
+		if n & (n - 1):
 			raise ValueError("cv is not a power of 2")
 		elif n <= 2:
 			return self.dft(cv)
-		w_n, w = np.exp(-2j * np.pi / n), 1
+		w_n, w = np.exp(-2j * np.pi / n), np.ones(1)
 		y_0, y_1 = self.fft(cv[::2]), self.fft(cv[1::2])
 		y = np.zeros(n, dtype=complex)
 		for k in range(n // 2):
@@ -60,7 +60,7 @@ class polynomial:
 		if cv is None:
 			cv = self.cv
 		cv, n = np.asarray(cv, dtype=complex), len(cv)
-		if n & 1:
+		if n & (n - 1):
 			raise ValueError("cv is not a power of 2")
 		elif n <= 2:
 			return self.inv_dft(cv)

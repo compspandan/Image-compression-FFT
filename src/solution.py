@@ -78,7 +78,7 @@ def compute_inv_fft(poly1, poly2):
     poly2.cv = np.pad(poly2.cv, (0, deg_bound-poly2.deg_bound))
     pv = polynomial(pv_mul(poly1, poly2))
     ifft = np.trim_zeros(np.real(np.rint(pv.inv_fft())))
-    return ifft
+    return ifft, pv
 
 
 # 6
@@ -161,8 +161,11 @@ def runner():
     print()
 
     print("TASK 5 and 6:")
-    ifft = time_exec('Exec Time Inverse FFT',compute_inv_fft, A, B)
+    ifft, pv = time_exec('Exec Time Inverse FFT', compute_inv_fft, A, B)
+    np_ifft = time_exec("Exec Time Numpy IFFT:", np.fft.ifft, pv.cv)
     mul = time_exec('Exec time elementary polynomial multiplication',convolution_check,A, B)
+
+    print("Implement 1D Inverse FFT:", compare_with_numpy(ifft, np.trim_zeros(np.real(np.rint(np_ifft)))))
     print("Implement 1D Inverse FFT:", compare_with_numpy(ifft, mul))
     print()
 
