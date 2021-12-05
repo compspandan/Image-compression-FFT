@@ -1,11 +1,9 @@
-import pickle
-from numpy import fft
+import os
 from matrix import matrix
 from polynomial import polynomial
 import numpy as np
 import rsa
 import cv2 as cv
-import matplotlib.pyplot as plt
 from scipy import sparse
 import pickle
 
@@ -108,6 +106,12 @@ def test_fft_2D():
 
 
 def grey_scale_image_compression():
+    if not os.path.isdir('./zipped/'):
+        os.mkdir('./zipped/')
+
+    if not os.path.isdir('./compressed/'):
+        os.mkdir('./compressed/')
+
     m = matrix(get_grey_scale_image())
     (nx, ny) = m.matrix.shape
     # m.pad_with_zeros()
@@ -125,20 +129,20 @@ def grey_scale_image_compression():
         # with gzip.GzipFile('fft_{}.npy.gz'.format(trim * 100), "r") as f:
         #     compressed_matrix = np.load(f)
 
-        sparse_compressed_matrix = sparse.csr_matrix(compressed_matrix) 
-        with open('fft_{}.npz'.format(trim * 100), 'wb') as f:
+        sparse_compressed_matrix = sparse.csr_matrix(compressed_matrix)
+
+        with open('./zipped/fft_{}.npz'.format(trim * 100), 'wb') as f:
             sparse.save_npz(f, sparse_compressed_matrix, compressed=True)
 		
-        with open('fft_{}.npz'.format(trim * 100), 'rb') as f:
+        with open('./zipped/fft_{}.npz'.format(trim * 100), 'rb') as f:
             sparse_compressed_matrix = sparse.load_npz(f)
             compressed_matrix = sparse_compressed_matrix.toarray()
 
         compressed_matrix = matrix(compressed_matrix)
         compressed_img = np.real(np.rint(compressed_matrix.ifft_2D()))
         # compressed_img = np.fft.ifft2(compressed_matrix).real
-        (m, n) = fft_matrix.shape
         # compressed_img = compressed_img[:nx, :ny]
-        cv.imwrite('comp_img'+str(trim*100)+'.jpg', compressed_img)
+        cv.imwrite('./compressed/img{}.jpg'.format(trim*100), compressed_img)
     print("TASK 9 and 10: PASSED")
 
 def runner():
