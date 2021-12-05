@@ -11,15 +11,13 @@ from utils import compare_with_numpy, get_grey_scale_image, next_pow_of_two, tim
 
 # 1
 def test_dft(v1):
-    print("coeff vector:", v1.cv)
-    d = v1.dft()
-    print("TASK1: Test DFT:" + compare_with_numpy(d, np.fft.fft(v1.cv)))
+    print("coeff vector for DFT:", v1.cv)
+    return v1.dft()
 
 # 2
 def test_fft(v1):
-    print("coeff vector:", v1.cv)
-    d = v1.fft()
-    print("TASK2: Test FFT:" + compare_with_numpy(d, np.fft.fft(v1.cv)))
+    print("coeff vector for FFT:", v1.cv)
+    return v1.fft()
 
 
 def pv_mul(A, B):
@@ -30,7 +28,7 @@ def pv_mul(A, B):
 # 3
 def test_pv_mul(A, B):
     C = pv_mul(A, B)
-    print("TASK3: Multiply PV form A(x) and B(x)", C)
+    print("Multiply PV form A(x) and B(x)", C)
     return polynomial(C)
 
 
@@ -63,7 +61,7 @@ def test_rsa_on_C(c_pv):
     decrypted_c_pv = list(map(lambda x: complex(
         x.replace('\x00', '')), decrypted_c_pv_str.split("_")))
 
-    print("TASK4: Apply RSA Encrytion on C(x):", compare_with_numpy(c_pv, decrypted_c_pv))
+    print("Apply RSA Encrytion on C(x):", compare_with_numpy(c_pv, decrypted_c_pv))
     if np.allclose(c_pv, decrypted_c_pv):
         print("RSA Encrpytion Decrytion on C(X) successful")
         print("C(x):", c_pv)
@@ -80,7 +78,7 @@ def compute_inv_fft(poly1, poly2):
     poly2.cv = np.pad(poly2.cv, (0, deg_bound-poly2.deg_bound))
     pv = polynomial(pv_mul(poly1, poly2))
     ifft = np.trim_zeros(np.real(np.rint(pv.inv_fft())))
-    print("TASK 5 and 6: Implement 1D Inverse FFT:", compare_with_numpy(ifft, convolution_check(poly1, poly2)))
+    return ifft
 
 
 # 6
@@ -90,17 +88,16 @@ def convolution_check(poly1, poly2):
 
 
 # 7 & 8
-def test_fft_2D():
-    m = matrix()
+def test_fft_2D(m):
+
     # computing fft
     fft_matrix = m.fft_2D()
 	
-    print("TASK 7 and 8: Check 2D FFT:", compare_with_numpy(fft_matrix, np.fft.fft2(m.matrix)))
     # computing inverse fft
     fft_matrix = matrix(fft_matrix)
     ifft_matrix = fft_matrix.ifft_2D()
     # checking if original matrix matches the matrix obtained after inverse fft
-    print("TASK 7 and 8: Check 2D Inverse FFT:", compare_with_numpy(ifft_matrix, np.fft.ifft2(fft_matrix.matrix)), compare_with_numpy(m.matrix, np.real(np.rint(ifft_matrix))))
+    return (fft_matrix.matrix, ifft_matrix)
 
 
 def grey_scale_image_compression():
@@ -122,17 +119,49 @@ def grey_scale_image_compression():
         (m, n) = fft_matrix.shape
         compressed_img = compressed_img[:nx, :ny]
         cv.imwrite('comp_img'+str(trim*100)+'.jpg', compressed_img)
-    print("TASK 9 and 10: PASSED")
+    print("PASSED")
 
 def runner():
     A, B = polynomial(), polynomial()
-    time_exec(test_dft, A)
-    time_exec(test_fft, A)
-    C = time_exec(test_pv_mul, A, B).cv
-    time_exec(test_rsa_on_C, C)
-    time_exec(compute_inv_fft, A, B)
-    time_exec(test_fft_2D)
-    time_exec(grey_scale_image_compression)
+    print("TASK 1:")
+    pv = time_exec('Exec Time DFT',test_dft, A)
+    test_pv = time_exec('Exec Time Numpy FFT',np.fft.fft, A.cv)
+    print("Test DFT:" + compare_with_numpy(pv, test_pv))
+    print()
+
+    print("TASK 2:") 
+    pv = time_exec('Time FFT',test_fft, A)
+    print("Test FFT:" + compare_with_numpy(pv, test_pv))
+    test_pv = time_exec('Exec Time Numpy FFT',np.fft.fft, A.cv)
+    print()
+
+    print("TASK 3:")
+    C = time_exec('Exec Time PV multiplication',test_pv_mul, A, B).cv
+    print()
+
+    print("TASK 4:")
+    time_exec('Exec Time RSA',test_rsa_on_C, C)
+    print()
+
+    print("TASK 5 and 6:")
+    ifft = time_exec('Exec Time Inverse FFT',compute_inv_fft, A, B)
+    mul = time_exec('Exec time elementary polynomial multiplication',convolution_check,A, B)
+    print("Implement 1D Inverse FFT:", compare_with_numpy(ifft, mul))
+    print()
+
+    print("TASK 7 AND 8:")
+    m = matrix()
+    (fft_matrix,ifft_matrix) = time_exec('Exec Time 2D FFT & Inverse FFT',test_fft_2D,m)
+    np_fft_matrix = time_exec('Exec Time Numpy 2D FFT',np.fft.fft2,m.matrix)
+    print("Check 2D FFT:", compare_with_numpy(fft_matrix, np_fft_matrix))
+    np_ifft_matrix = time_exec('Exec Time Numpy 2D IFFT',np.fft.ifft2, fft_matrix)
+    print("Check 2D Inverse FFT:", compare_with_numpy(ifft_matrix, np_ifft_matrix))
+    print("Check if matrices match after FFT and IFFT:", compare_with_numpy(m.matrix, np.real(np.rint(ifft_matrix))))
+    print()
+
+    print("TASK 9 AND 10:")
+    # time_exec(grey_scale_image_compression)
+    print()
 
 
 if __name__ == '__main__':

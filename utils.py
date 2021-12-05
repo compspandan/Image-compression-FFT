@@ -10,11 +10,11 @@ def next_pow_of_two(n):
 		n = n & n - 1 
 	return n << 1
 
-def time_exec(func, *args):
+def time_exec(msg, func, *args):
 	start = timer()
 	res = func(*args)
 	end = timer()
-	print('time taken: [{:5f}s]\n'.format(end - start))
+	print(msg,': [{:5f}s]'.format(end - start))
 	return res
 
 def compare_with_numpy(x,y):
