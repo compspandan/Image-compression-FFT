@@ -1,86 +1,86 @@
+from numpy import fft
 from matrix import matrix
 from polynomial import polynomial
 import numpy as np
 import rsa
+import cv2 as cv
+import matplotlib.pyplot as plt
+
+from utils import compare_with_numpy, get_grey_scale_image, next_pow_of_two, time_exec
 
 
-# 1 and 2
-def test_dft_fft():
-    v1 = polynomial()
-    print("coeff vec:", v1.cv)
+# 1
+def test_dft(v1):
+    print("coeff vector:", v1.cv)
     d = v1.dft()
-    print(np.allclose(d, np.fft.fft(v1.cv)))
-    d = v1.fft()
-    print(np.allclose(d, np.fft.fft(v1.cv)))
+    print("TASK1: Test DFT:" + compare_with_numpy(d, np.fft.fft(v1.cv)))
 
+# 2
+def test_fft(v1):
+    print("coeff vector:", v1.cv)
+    d = v1.fft()
+    print("TASK2: Test FFT:" + compare_with_numpy(d, np.fft.fft(v1.cv)))
+
+
+def pv_mul(A, B):
+    fft1 = A.fft()
+    fft2 = B.fft()
+    return fft1 * fft2
 
 # 3
-def test_pv_mul(poly1, poly2):
-    fft1 = poly1.fft()
-    fft2 = poly2.fft()
-    return polynomial(fft1*fft2)
+def test_pv_mul(A, B):
+    C = pv_mul(A, B)
+    print("TASK3: Multiply PV form A(x) and B(x)", C)
+    return polynomial(C)
 
 
 # 4
-def test_rsa_on_C(a, b):
-	a_pv = a.fft()
-	b_pv = b.fft()
-	c_pv = a_pv * b_pv
-	
-	c_pv_str = "_".join(list(map(str, c_pv)))
-	c_pv_num_blocks = []
-	c_pv_num_curr = 0
-	CHAR_SIZE, BLOCK_SIZE = 1000, 2
-	for i, c in enumerate(c_pv_str):
-		if i % BLOCK_SIZE == 0 and i != 0:
-			c_pv_num_blocks.append(c_pv_num_curr)
-			c_pv_num_curr = 0
-		c_pv_num_curr = c_pv_num_curr * CHAR_SIZE + ord(c)
-	c_pv_num_blocks.append(c_pv_num_curr)
+def test_rsa_on_C(c_pv):
+    c_pv_str = "_".join(list(map(str, c_pv)))
+    c_pv_num_blocks = []
+    c_pv_num_curr = 0
+    CHAR_SIZE, BLOCK_SIZE = 1000, 2
+    for i, c in enumerate(c_pv_str):
+        if i % BLOCK_SIZE == 0 and i != 0:
+            c_pv_num_blocks.append(c_pv_num_curr)
+            c_pv_num_curr = 0
+        c_pv_num_curr = c_pv_num_curr * CHAR_SIZE + ord(c)
+    c_pv_num_blocks.append(c_pv_num_curr)
 
-	public_key, secret_key = rsa.create(512)
-	cipher = list(map(lambda x: rsa.encrypt(x, public_key), c_pv_num_blocks))
-	decrypted_c_pv_num_blocks = list(map(lambda x: rsa.decrypt(x, secret_key), cipher))
+    public_key, secret_key = rsa.create(512)
+    cipher = list(map(lambda x: rsa.encrypt(x, public_key), c_pv_num_blocks))
+    decrypted_c_pv_num_blocks = list(
+        map(lambda x: rsa.decrypt(x, secret_key), cipher))
 
-	decrypted_c_pv_str = ""
-	for block in decrypted_c_pv_num_blocks:
-		decrypted_c_pv_block_str = ""
-		for _ in range(BLOCK_SIZE):
-			decrypted_c_pv_block_str = chr(block % CHAR_SIZE) + decrypted_c_pv_block_str
-			block //= CHAR_SIZE
-		decrypted_c_pv_str = decrypted_c_pv_str + decrypted_c_pv_block_str
-	decrypted_c_pv = list(map(lambda x: complex(x.replace('\x00', '')), decrypted_c_pv_str.split("_")))
+    decrypted_c_pv_str = ""
+    for block in decrypted_c_pv_num_blocks:
+        decrypted_c_pv_block_str = ""
+        for _ in range(BLOCK_SIZE):
+            decrypted_c_pv_block_str = chr(
+                block % CHAR_SIZE) + decrypted_c_pv_block_str
+            block //= CHAR_SIZE
+        decrypted_c_pv_str = decrypted_c_pv_str + decrypted_c_pv_block_str
+    decrypted_c_pv = list(map(lambda x: complex(
+        x.replace('\x00', '')), decrypted_c_pv_str.split("_")))
 
-	if np.allclose(c_pv, decrypted_c_pv):
-		print("RSA Encrpytion Decrytion on C(X) successfull")
-		print("C(x):", c_pv)
-		print("C(x) after RSA encryption and decryption:", decrypted_c_pv)
-	else:
-		raise Exception("RSA Encrpytion Failed")
-
-
-def next_pow_of_two(n):
-    # incase n itself is power of 2
-    n = n - 1
-    while n & n - 1:
-        n = n & n - 1
-    return n << 1
+    print("TASK4: Apply RSA Encrytion on C(x):", compare_with_numpy(c_pv, decrypted_c_pv))
+    if np.allclose(c_pv, decrypted_c_pv):
+        print("RSA Encrpytion Decrytion on C(X) successful")
+        print("C(x):", c_pv)
+        print("C(x) after RSA encryption and decryption:", decrypted_c_pv)
+    else:
+        raise Exception("RSA Encrpytion Failed")
 
 
 # 5
-def compute_inv_fft():
-    poly1 = polynomial()
-    poly2 = polynomial()
+def compute_inv_fft(poly1, poly2):
     deg_bound = next_pow_of_two(poly1.deg_bound + poly2.deg_bound - 1)
     # padding cv of poly1 and poly2 to next highest power of 2 for IFFT
     poly1.cv = np.pad(poly1.cv, (0, deg_bound-poly1.deg_bound))
     poly2.cv = np.pad(poly2.cv, (0, deg_bound-poly2.deg_bound))
-
-    # print('poly1',poly1.cv)
-    # print('poly2',poly2.cv)
-    pv = test_pv_mul(poly1, poly2)
+    pv = polynomial(pv_mul(poly1, poly2))
     ifft = np.trim_zeros(np.real(np.rint(pv.inv_fft())))
-    print(np.allclose(ifft, convolution_check(poly1, poly2)))
+    print("TASK 5 and 6: Implement 1D Inverse FFT:", compare_with_numpy(ifft, convolution_check(poly1, poly2)))
 
 
 # 6
@@ -94,15 +94,46 @@ def test_fft_2D():
     m = matrix()
     # computing fft
     fft_matrix = m.fft_2D()
-    print(np.allclose(fft_matrix, np.fft.fft2(m.matrix)))
+	
+    print("TASK 7 and 8: Check 2D FFT:", compare_with_numpy(fft_matrix, np.fft.fft2(m.matrix)))
     # computing inverse fft
     fft_matrix = matrix(fft_matrix)
     ifft_matrix = fft_matrix.ifft_2D()
-    print(np.allclose(ifft_matrix, np.fft.ifft2(fft_matrix.matrix)))
     # checking if original matrix matches the matrix obtained after inverse fft
-    print(np.allclose(m.matrix, np.real(np.rint(ifft_matrix))))
+    print("TASK 7 and 8: Check 2D Inverse FFT:", compare_with_numpy(ifft_matrix, np.fft.ifft2(fft_matrix.matrix)), compare_with_numpy(m.matrix, np.real(np.rint(ifft_matrix))))
 
 
-if __name__ == "__main__":
-    poly1, poly2 = polynomial(), polynomial()
-    test_rsa_on_C(poly1, poly2)
+def grey_scale_image_compression():
+    m = matrix(get_grey_scale_image())
+    (nx, ny) = m.matrix.shape
+    m.pad_with_zeros()
+    fft_matrix = m.fft_2D()
+    # fft_matrix = np.fft.fft2(m.matrix)
+    sorted_vals = np.sort(np.abs(np.reshape(fft_matrix, -1)))
+    for trim in [0.1, 0.05, 0.025]:
+        threshold = sorted_vals[int((1-trim)*len(sorted_vals))]
+        compressed_matrix = np.abs(fft_matrix) > threshold
+        compressed_matrix = fft_matrix * compressed_matrix
+        cv.imwrite('fft_image'+str(trim*100)+'.jpg',
+                   np.real(compressed_matrix))
+        compressed_matrix = matrix(compressed_matrix)
+        compressed_img = np.real(np.rint(compressed_matrix.ifft_2D()))
+        # compressed_img = np.fft.ifft2(compressed_matrix).real
+        (m, n) = fft_matrix.shape
+        compressed_img = compressed_img[:nx, :ny]
+        cv.imwrite('comp_img'+str(trim*100)+'.jpg', compressed_img)
+    print("TASK 9 and 10: PASSED")
+
+def runner():
+    A, B = polynomial(), polynomial()
+    time_exec(test_dft, A)
+    time_exec(test_fft, A)
+    C = time_exec(test_pv_mul, A, B).cv
+    time_exec(test_rsa_on_C, C)
+    time_exec(compute_inv_fft, A, B)
+    time_exec(test_fft_2D)
+    time_exec(grey_scale_image_compression)
+
+
+if __name__ == '__main__':
+    runner()
