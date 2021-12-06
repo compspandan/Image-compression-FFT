@@ -1,6 +1,10 @@
 # AA-assignment
 Assignment for the course Advanced Algorithms (UE19CS311)
 
+## Execution Details
+1. ```cd src```
+2. ```python3 solution.py```
+
 ## Implementation
 The project consists of 
 1. The implementation of the Fast Fourier Transform Algorithm and its applications 
