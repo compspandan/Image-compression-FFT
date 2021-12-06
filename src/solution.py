@@ -181,9 +181,9 @@ def runner():
     print("Check if matrices match after FFT and IFFT:", compare_with_numpy(m.matrix, np.real(np.rint(ifft_matrix))))
     print()
 
-    # print("TASK 9 AND 10:")
-    # time_exec("Compress Grayscale Images via FFT:", grey_scale_image_compression)
-    # print()
+    print("TASK 9 AND 10:")
+    time_exec("Compress Grayscale Images via FFT:", grey_scale_image_compression)
+    print()
 
 
 if __name__ == '__main__':
